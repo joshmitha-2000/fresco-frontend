@@ -23,6 +23,7 @@ export default function ProductDetails() {
   const [showToast, setShowToast] = useState(false);
 
   const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
 
   // Fetch product details
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function ProductDetails() {
   useEffect(() => {
     if (!token) return;
     axios
-      .get("https://frescobackend.onrender.com/wishlist", {
+      .get(`https://frescobackend.onrender.com/wishlist/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -63,7 +64,7 @@ export default function ProductDetails() {
     if (!token) return alert("Please login to add to wishlist.");
     if (isWishlisted) {
       axios
-        .delete(`https://frescobackend.onrender.com/wishlist/${productId}`, {
+        .delete(`https://frescobackend.onrender.com/wishlist/${userId}/${productId}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(() => {
@@ -76,7 +77,7 @@ export default function ProductDetails() {
     } else {
       axios
         .post(
-          "https://frescobackend.onrender.com/wishlist",
+          `https://frescobackend.onrender.com/wishlist/${userId}/${productId}`,
           { productId: Number(productId) },
           { headers: { Authorization: `Bearer ${token}` } }
         )

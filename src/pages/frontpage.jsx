@@ -51,9 +51,9 @@ export default function Frontpage() {
   if (loading) return <Skeleton />;
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-x-hidden"> {/* Prevent horizontal scroll */}
       {/* Hero Section */}
-      <div className="relative w-full h-full sm:h-[70vh] md:h-[80vh] lg:h-[95vh] overflow-hidden rounded-lg">
+      <div className="relative w-full h-auto min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] lg:min-h-[95vh] overflow-hidden rounded-lg">
 
         {/* Slides */}
         <div
@@ -61,7 +61,11 @@ export default function Frontpage() {
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {slides.map((slide, idx) => (
-            <div key={idx} className="w-full flex-shrink-0 relative h-full">
+            <div
+              key={idx}
+              className="w-full flex-shrink-0 relative h-full"
+              style={{ minWidth: '100vw' }} // Force each slide to exactly viewport width
+            >
               <img
                 src={slide.src}
                 alt={`Slide ${idx + 1}`}
@@ -73,11 +77,11 @@ export default function Frontpage() {
 
         {/* Slide Caption */}
         <div className="absolute inset-0 z-20 flex justify-center items-center px-4 text-center h-full">
-          <div className="animate-zoom-in">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-[#412818] leading-snug drop-shadow-lg">
+          <div className="animate-zoom-in max-w-[90%] sm:max-w-[80%]">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold text-[#412818] leading-snug drop-shadow-lg">
               {slides[index].captionMain}
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-[#070706] mt-3 sm:mt-4 drop-shadow-sm">
+            <p className="text-sm sm:text-base md:text-xl text-[#070706] mt-2 sm:mt-3 drop-shadow-sm">
               {slides[index].captionSub}
             </p>
           </div>

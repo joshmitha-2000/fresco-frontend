@@ -8,12 +8,12 @@ const Wishlist = () => {
   const [tooltipVisibleId, setTooltipVisibleId] = useState(null);
 
   const token = localStorage.getItem("token");
-  const userid = localStorage.getItem("userId");
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     if (!token) return; // Don't fetch if no token
 
-    fetch("https://frescobackend.onrender.com/wishlist", {
+    fetch(`https://frescobackend.onrender.com/wishlist/${userId}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -29,7 +29,7 @@ const Wishlist = () => {
 
   const removeFromWishlist = async (productId) => {
     try {
-      const res = await fetch(`https://frescobackend.onrender.com/wishlist/${productId}`, {
+      const res = await fetch(`https://frescobackend.onrender.com/wishlist/${userId}/${productId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +49,7 @@ const Wishlist = () => {
     setLoadingCart(true);
     try {
       await axios.post(
-        `https://frescobackend.onrender.com/cart/${userid}`,
+        `https://frescobackend.onrender.com/cart/${userId}`,
         { productId, quantity: 1 },
         {
           headers: { Authorization: `Bearer ${token}` },
