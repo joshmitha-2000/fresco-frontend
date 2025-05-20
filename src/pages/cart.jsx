@@ -5,7 +5,7 @@ import Skeleton from "../components/skeleton";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_BASE = "http://localhost:3000/cart";
+const API_BASE = "https://frescobackend.onrender.com/cart";
 
 const getAxiosInstance = () => {
   const token = localStorage.getItem("token");
@@ -83,7 +83,7 @@ export default function Cart() {
     try {
       for (const item of cart) {
         await axios.post(
-          "http://localhost:3000/orders",
+          "https://frescobackend.onrender.com/orders",
           {
             userId: parseInt(userId),
             productId: item.productId,

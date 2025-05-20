@@ -4,6 +4,9 @@ import { FaHeart } from 'react-icons/fa';
 import Tooltip from '../components/tooltp'; // ✅ Ensure filename is tooltp.jsx
 import Skeleton from '../components/skeleton';
 import { Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 export default function ShopPage({ searchQuery }) {
   const [products, setProducts] = useState([]);
@@ -25,7 +28,7 @@ export default function ShopPage({ searchQuery }) {
     if (!token) return;
     const fetchWishlist = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/wishlist', {
+        const res = await axios.get('https://frescobackend.onrender.com/wishlist', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const wishlistProductIds = res.data.map((item) => item.productId);
@@ -41,7 +44,7 @@ export default function ShopPage({ searchQuery }) {
     const fetchProducts = async () => {
       try {
         setLoadingProducts(true);
-        const res = await axios.get('http://localhost:3000/products');
+        const res = await axios.get('https://frescobackend.onrender.com/products');
         if (!Array.isArray(res.data)) throw new Error('Products response is not an array');
         setProducts(res.data);
         setError(null);
@@ -55,7 +58,7 @@ export default function ShopPage({ searchQuery }) {
 
     const fetchCategories = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/categories');
+        const res = await axios.get('https://frescobackend.onrender.com/api/categories');
         if (!Array.isArray(res.data)) throw new Error('Categories response is not an array');
         setCategories(res.data);
       } catch (err) {
@@ -75,20 +78,20 @@ export default function ShopPage({ searchQuery }) {
   const addToCart = async (product) => {
     const userId = localStorage.getItem("userId");
     if (!userId) return alert("User not logged in.");
-
+  
     const cartItem = {
       productId: product.id,
       quantity: 1,
       productName: product.name,
       price: product.price,
     };
-
+  
     try {
       setLoadingCart(true);
-      await axios.post(`http://localhost:3000/cart/${userId}`, cartItem, {
+      await axios.post(`https://frescobackend.onrender.com/cart/${userId}`, cartItem, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
       let cart = JSON.parse(localStorage.getItem("cart")) || [];
       const productInCart = cart.find((item) => item.productId === product.id);
       if (productInCart) {
@@ -97,13 +100,12 @@ export default function ShopPage({ searchQuery }) {
         cart.push(cartItem);
       }
       localStorage.setItem("cart", JSON.stringify(cart));
-
+  
       setTooltipVisibleId(product.id);
-      setShowToast(true);
-setTimeout(() => {
-  setShowToast(false);
-}, 3000);
-
+      
+      // Show toast popup message
+      toast.success('Added to Cart!');
+  
     } catch (error) {
       console.error("Failed to add to cart:", error);
       alert("Failed to add to cart. Please try again.");
@@ -111,6 +113,7 @@ setTimeout(() => {
       setLoadingCart(false);
     }
   };
+  
 
   const toggleWishlist = async (productId) => {
     if (!token) {
@@ -120,7 +123,7 @@ setTimeout(() => {
 
     try {
       if (wishlist.has(productId)) {
-        await axios.delete(`http://localhost:3000/wishlist/${productId}`, {
+        await axios.delete(`https://frescobackend.onrender.com/wishlist/${productId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setWishlist((prev) => {
@@ -130,7 +133,7 @@ setTimeout(() => {
         });
       } else {
         await axios.post(
-          'http://localhost:3000/wishlist',
+          'https://frescobackend.onrender.com/wishlist',
           { productId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -260,20 +263,32 @@ setTimeout(() => {
                     </Link>
 
                     <div className="p-4">
-                      <h3 className="text-lg font-semibold text-[#2f271d]">{product.name}</h3>
-                      <p className="text-[#6b0b05] font-bold">${product.price.toFixed(2)}</p>
-                      <button
-                        onClick={() => addToCart(product)}
-                        className="mt-2 bg-[#6b0b05] text-white px-4 py-2 rounded hover:bg-[#501103]"
-                      >
-                        Add to Cart
-                      </button>
-                      {tooltipVisibleId === product.id && (
-                        <Tooltip message="Added to Cart!" />
-                      )}
-                    </div>
-                  </div>
-                ))}
+            <h3 className="text-lg font-semibold text-[#2f271d]">{product.name}</h3>
+            <p className="text-[#6b0b05] font-bold">${product.price.toFixed(2)}</p>
+            <button
+              onClick={() => addToCart(product)}
+              className="mt-2 bg-[#6b0b05] text-white px-4 py-2 rounded hover:bg-[#501103]"
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      ))}
+
+      {/* Add ToastContainer once in your app */}
+      <ToastContainer
+        position="bottom-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
+          
               </div>
 
               {/* Pagination */}

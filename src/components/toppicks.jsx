@@ -8,7 +8,7 @@ export default function TopSellingProducts() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3000/products") // your backend API URL
+    fetch("https://frescobackend.onrender.com/products") // your backend API URL
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch products");
         return res.json();

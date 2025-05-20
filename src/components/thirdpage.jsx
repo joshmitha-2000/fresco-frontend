@@ -54,10 +54,11 @@ export default function ThirdPage() {
 
           {/* Chair Image */}
           <img
-            src="/Red_Chair_PNG_Clipart-removebg-preview.png"
-            alt="Red Chair"
-            className="relative w-full h-full object-contain"
-          />
+  src="/Red_Chair_PNG_Clipart.png"
+  alt="Red Chair"
+  className="relative w-full h-full object-contain"
+/>
+
         </div>
 
         {/* Text Section */}

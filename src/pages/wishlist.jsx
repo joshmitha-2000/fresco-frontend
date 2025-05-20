@@ -13,7 +13,7 @@ const Wishlist = () => {
   useEffect(() => {
     if (!token) return; // Don't fetch if no token
 
-    fetch("http://localhost:3000/wishlist", {
+    fetch("https://frescobackend.onrender.com/wishlist", {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -29,7 +29,7 @@ const Wishlist = () => {
 
   const removeFromWishlist = async (productId) => {
     try {
-      const res = await fetch(`http://localhost:3000/wishlist/${productId}`, {
+      const res = await fetch(`https://frescobackend.onrender.com/wishlist/${productId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +49,7 @@ const Wishlist = () => {
     setLoadingCart(true);
     try {
       await axios.post(
-        `http://localhost:3000/cart/${userid}`,
+        `https://frescobackend.onrender.com/cart/${userid}`,
         { productId, quantity: 1 },
         {
           headers: { Authorization: `Bearer ${token}` },

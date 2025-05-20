@@ -47,7 +47,7 @@ export default function BuyNowPage() {
         return;
       }
 
-      const response = await fetch("http://localhost:3000/orders", {
+      const response = await fetch("https://frescobackend.onrender.com/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

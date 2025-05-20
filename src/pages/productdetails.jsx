@@ -27,7 +27,7 @@ export default function ProductDetails() {
   // Fetch product details
   useEffect(() => {
     axios
-      .get(`http://localhost:3000/products/${productId}`)
+      .get(`https://frescobackend.onrender.com/products/${productId}`)
       .then((res) => setProduct(res.data))
       .catch((err) => console.error("Failed to fetch product:", err));
   }, [productId]);
@@ -36,7 +36,7 @@ export default function ProductDetails() {
   useEffect(() => {
     if (!token) return;
     axios
-      .get("http://localhost:3000/wishlist", {
+      .get("https://frescobackend.onrender.com/wishlist", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -53,7 +53,7 @@ export default function ProductDetails() {
   // Fetch product reviews
   useEffect(() => {
     axios
-      .get(`http://localhost:3000/api/reviews/${productId}`)
+      .get(`https://frescobackend.onrender.com/api/reviews/${productId}`)
       .then((res) => setReviews(res.data))
       .catch((err) => console.error("Failed to fetch reviews:", err));
   }, [productId]);
@@ -63,7 +63,7 @@ export default function ProductDetails() {
     if (!token) return alert("Please login to add to wishlist.");
     if (isWishlisted) {
       axios
-        .delete(`http://localhost:3000/wishlist/${productId}`, {
+        .delete(`https://frescobackend.onrender.com/wishlist/${productId}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then(() => {
@@ -76,7 +76,7 @@ export default function ProductDetails() {
     } else {
       axios
         .post(
-          "http://localhost:3000/wishlist",
+          "https://frescobackend.onrender.com/wishlist",
           { productId: Number(productId) },
           { headers: { Authorization: `Bearer ${token}` } }
         )
@@ -102,7 +102,7 @@ export default function ProductDetails() {
     try {
       // Send POST request to backend to add product to cart for the user
       await axios.post(
-        `http://localhost:3000/cart/${userId}`,
+        `https://frescobackend.onrender.com/cart/${userId}`,
         cartItem,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -143,7 +143,7 @@ export default function ProductDetails() {
 
     try {
       const res = await axios.post(
-        `http://localhost:3000/api/reviews`,
+        `https://frescobackend.onrender.com/api/reviews`,
         {
           productId: Number(productId),
           username: username.trim(),

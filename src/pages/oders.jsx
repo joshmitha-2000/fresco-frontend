@@ -16,7 +16,7 @@ const OrdersPage = () => {
         return;
       }
 
-      const response = await axios.get("http://localhost:3000/orders", {
+      const response = await axios.get("https://frescobackend.onrender.com/orders", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -43,7 +43,7 @@ const OrdersPage = () => {
 
     try {
       // Replace the URL below with your dummy API endpoint for deleting orders
-      await axios.delete(`http://localhost:3000/orders/${orderId}`, {
+      await axios.delete(`https://frescobackend.onrender.com/orders/${orderId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

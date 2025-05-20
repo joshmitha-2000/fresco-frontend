@@ -9,7 +9,7 @@ const RecommendedProducts = ({ category, currentProductId }) => {
     if (!category) return;
 
     axios
-      .get(`http://localhost:3000/products?category=${category}`)
+      .get(`https://frescobackend.onrender.com/products?category=${category}`)
       .then((res) => {
         const filtered = res.data.filter((p) => p.id !== currentProductId);
         setProducts(filtered.slice(0, 5));

@@ -22,9 +22,9 @@ const Register = () => {
       setMessage('Passwords do not match!');
       return;
     }
-
+    console.log('Registering with email:', formData.email);
     try {
-      const res = await fetch('http://localhost:3000/register', {
+      const res = await fetch('https://frescobackend.onrender.com/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -37,6 +37,7 @@ const Register = () => {
       const data = await res.json();
       if (res.ok) {
         setMessage('Registration successful! Check your email for confirmation link.');
+        setFormData({ name: '', email: '', password: '', confirmPassword: '' }); // reset form
       } else {
         setMessage(data.message || 'Registration failed.');
       }
@@ -99,7 +100,10 @@ const Register = () => {
               className="w-full px-3 py-2 border rounded-md"
               required
             />
-            <button type="submit" className="w-full bg-[#d4a15e] text-white py-2 rounded-md hover:bg-[#b8894d] transition">
+            <button
+              type="submit"
+              className="w-full bg-[#d4a15e] text-white py-2 rounded-md hover:bg-[#b8894d] transition"
+            >
               Register
             </button>
           </form>
