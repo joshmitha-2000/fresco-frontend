@@ -188,6 +188,8 @@
 //     </>
 //   );
 // }
+
+
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -196,11 +198,8 @@ import "react-toastify/dist/ReactToastify.css";
 export default function BuyNowPage() {
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Product details passed via router state
   const product = location.state?.product;
 
-  // States for quantity, payment method, and loading indicator
   const [quantity, setQuantity] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -230,31 +229,20 @@ export default function BuyNowPage() {
     }
 
     setIsLoading(true);
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("❌ You must be logged in to place an order", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        toast.error("❌ You must be logged in to place an order", {
-          position: "top-center",
-          autoClose: 3000,
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      if (paymentMethod === "Pay Online") {
-        // TODO: Implement online payment flow integration here
-        toast.info("⚠️ Online payment integration coming soon!", {
-          position: "top-center",
-          autoClose: 3000,
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // For "Cash on Delivery", create the order directly
-      const response = await fetch("https://frescobackend.onrender.com/orders", {
+      // Step 1: Create Order
+      const orderResponse = await fetch("https://frescobackend.onrender.com/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -269,10 +257,33 @@ export default function BuyNowPage() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to place order");
+      if (!orderResponse.ok) {
+        throw new Error("Failed to create order");
       }
 
+      const orderData = await orderResponse.json(); // Get { id, ... }
+
+      if (paymentMethod === "Pay Online") {
+        // Step 2: Create Stripe Checkout Session
+        const stripeResponse = await fetch("https://frescobackend.onrender.com/payment/create-payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ orderId: orderData.id }),
+        });
+
+        if (!stripeResponse.ok) {
+          throw new Error("Failed to initiate payment");
+        }
+
+        const { url } = await stripeResponse.json();
+        window.location.href = url; // Redirect to Stripe Checkout
+        return;
+      }
+
+      // Cash on Delivery Success
       toast.success("🎉 Your order has been confirmed!", {
         position: "top-center",
         autoClose: 3000,
@@ -282,7 +293,7 @@ export default function BuyNowPage() {
         navigate("/");
       }, 3500);
     } catch (error) {
-      toast.error("❌ Could not confirm your order. Please try again.", {
+      toast.error("❌ Could not complete your order. Please try again.", {
         position: "top-center",
         autoClose: 3000,
       });
@@ -295,7 +306,6 @@ export default function BuyNowPage() {
     <>
       <div className="min-h-screen bg-[#f5f0e6] flex items-center justify-center p-4">
         <div className="bg-white shadow-lg rounded-lg max-w-4xl w-full flex flex-col md:flex-row p-6 md:p-10 gap-8">
-          {/* Left side: Product Image */}
           <div className="flex-1 flex justify-center items-center">
             <img
               src={product.image}
@@ -304,7 +314,6 @@ export default function BuyNowPage() {
             />
           </div>
 
-          {/* Right side: Details */}
           <div className="flex-1 flex flex-col justify-between">
             <div>
               <h1 className="text-3xl font-semibold text-[#4b3b2b] mb-2">{product.name}</h1>
@@ -316,7 +325,6 @@ export default function BuyNowPage() {
                 Price per item: ₹{product.price.toFixed(2)}
               </p>
 
-              {/* Quantity selector */}
               <div className="mb-4 flex items-center gap-4">
                 <label htmlFor="quantity" className="text-[#4b3b2b] font-semibold text-lg">
                   Quantity:
@@ -336,49 +344,29 @@ export default function BuyNowPage() {
                 Total: ₹{(product.price * quantity).toFixed(2)}
               </p>
 
-              {/* Payment options */}
               <div className="mb-8 flex gap-8 flex-wrap">
-                <label
-                  className={`flex items-center cursor-pointer text-lg font-semibold ${
-                    paymentMethod === "Cash on Delivery"
-                      ? "text-[#6b4b27]"
-                      : "text-[#4b3b2b]"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="Cash on Delivery"
-                    checked={paymentMethod === "Cash on Delivery"}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="mr-2 cursor-pointer"
-                    aria-checked={paymentMethod === "Cash on Delivery"}
-                  />
-                  Cash on Delivery
-                </label>
-
-                <label
-                  className={`flex items-center cursor-pointer text-lg font-semibold ${
-                    paymentMethod === "Pay Online"
-                      ? "text-[#6b4b27]"
-                      : "text-[#4b3b2b]"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="Pay Online"
-                    checked={paymentMethod === "Pay Online"}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="mr-2 cursor-pointer"
-                    aria-checked={paymentMethod === "Pay Online"}
-                  />
-                  Pay Online
-                </label>
+                {["Cash on Delivery", "Pay Online"].map((method) => (
+                  <label
+                    key={method}
+                    className={`flex items-center cursor-pointer text-lg font-semibold ${
+                      paymentMethod === method ? "text-[#6b4b27]" : "text-[#4b3b2b]"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="payment"
+                      value={method}
+                      checked={paymentMethod === method}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="mr-2 cursor-pointer"
+                      aria-checked={paymentMethod === method}
+                    />
+                    {method}
+                  </label>
+                ))}
               </div>
             </div>
 
-            {/* Confirm button */}
             <button
               onClick={handleConfirmPurchase}
               disabled={!paymentMethod || isLoading}
