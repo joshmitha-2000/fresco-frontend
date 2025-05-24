@@ -292,7 +292,7 @@ export default function BuyNowPage() {
 
         const order = await orderResponse.json();
 
-        const stripeRes = await fetch("https://frescobackend.onrender.com/api/payment/create-payment", {
+        const stripeRes = await fetch("https://frescobackend.onrender.com/payment/create-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ orderId: order.id }),
