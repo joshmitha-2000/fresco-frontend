@@ -1,9 +1,10 @@
 import React from "react";
 
-const Cancel = () => (
-  <div className="min-h-screen flex items-center justify-center text-red-600 text-2xl font-bold">
-    ❌ Payment Canceled. Try again anytime.
-  </div>
-);
-
-export default Cancel;
+export default function PaymentFailed() {
+  return (
+    <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
+      <h1>Payment Failed or Cancelled.</h1>
+      <p>Please try again or contact support.</p>
+    </div>
+  );
+}

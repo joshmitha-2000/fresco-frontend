@@ -188,7 +188,6 @@
 //     </>
 //   );
 // }
-
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -198,10 +197,13 @@ export default function BuyNowPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Product details passed via router state
   const product = location.state?.product;
 
+  // States for quantity, payment method, and loading indicator
   const [quantity, setQuantity] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!product) {
     return (
@@ -227,89 +229,65 @@ export default function BuyNowPage() {
       return;
     }
 
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      toast.error("❌ You must be logged in to place an order", {
-        position: "top-center",
-        autoClose: 3000,
-      });
-      return;
-    }
+    setIsLoading(true);
 
     try {
-      // Cash on Delivery: create order and confirm
-      if (paymentMethod === "Cash on Delivery") {
-        const response = await fetch("https://frescobackend.onrender.com/orders", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            productId: product.id,
-            quantity: quantity,
-            amount: product.price * quantity,
-            orderDate: new Date().toISOString(),
-            paymentMethod,
-          }),
-        });
+      const token = localStorage.getItem("token");
 
-        if (!response.ok) {
-          throw new Error("Failed to place order");
-        }
-
-        toast.success("🎉 Your order has been confirmed!", {
+      if (!token) {
+        toast.error("❌ You must be logged in to place an order", {
           position: "top-center",
           autoClose: 3000,
         });
-
-        setTimeout(() => {
-          navigate("/");
-        }, 3500);
+        setIsLoading(false);
+        return;
       }
 
-      // Pay Online: create order, get Stripe URL, redirect
       if (paymentMethod === "Pay Online") {
-        const orderResponse = await fetch("https://frescobackend.onrender.com/orders", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            productId: product.id,
-            quantity: quantity,
-            amount: product.price * quantity,
-            orderDate: new Date().toISOString(),
-            paymentMethod,
-          }),
+        // TODO: Implement online payment flow integration here
+        toast.info("⚠️ Online payment integration coming soon!", {
+          position: "top-center",
+          autoClose: 3000,
         });
-
-        if (!orderResponse.ok) {
-          throw new Error("Failed to create order");
-        }
-
-        const order = await orderResponse.json();
-
-        const stripeRes = await fetch("https://frescobackend.onrender.com/payment/create-payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId: order.id }),
-        });
-
-        const stripeData = await stripeRes.json();
-
-        if (!stripeData.url) throw new Error("Failed to get Stripe Checkout URL");
-
-        // Redirect user to Stripe Checkout page
-        window.location.href = stripeData.url;
+        setIsLoading(false);
+        return;
       }
-    } catch (error) {
-      toast.error("❌ Something went wrong. Please try again.", {
+
+      // For "Cash on Delivery", create the order directly
+      const response = await fetch("https://frescobackend.onrender.com/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity,
+          amount: product.price * quantity,
+          orderDate: new Date().toISOString(),
+          paymentMethod,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to place order");
+      }
+
+      toast.success("🎉 Your order has been confirmed!", {
         position: "top-center",
         autoClose: 3000,
       });
+
+      setTimeout(() => {
+        navigate("/");
+      }, 3500);
+    } catch (error) {
+      toast.error("❌ Could not confirm your order. Please try again.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -317,7 +295,7 @@ export default function BuyNowPage() {
     <>
       <div className="min-h-screen bg-[#f5f0e6] flex items-center justify-center p-4">
         <div className="bg-white shadow-lg rounded-lg max-w-4xl w-full flex flex-col md:flex-row p-6 md:p-10 gap-8">
-          {/* Left side: Image */}
+          {/* Left side: Product Image */}
           <div className="flex-1 flex justify-center items-center">
             <img
               src={product.image}
@@ -326,7 +304,7 @@ export default function BuyNowPage() {
             />
           </div>
 
-          {/* Right side: Info + Quantity + Payment + Button */}
+          {/* Right side: Details */}
           <div className="flex-1 flex flex-col justify-between">
             <div>
               <h1 className="text-3xl font-semibold text-[#4b3b2b] mb-2">{product.name}</h1>
@@ -338,6 +316,7 @@ export default function BuyNowPage() {
                 Price per item: ₹{product.price.toFixed(2)}
               </p>
 
+              {/* Quantity selector */}
               <div className="mb-4 flex items-center gap-4">
                 <label htmlFor="quantity" className="text-[#4b3b2b] font-semibold text-lg">
                   Quantity:
@@ -349,6 +328,7 @@ export default function BuyNowPage() {
                   value={quantity}
                   onChange={handleQuantityChange}
                   className="border border-gray-300 rounded-md px-3 py-1 w-20 text-lg"
+                  aria-label="Select quantity"
                 />
               </div>
 
@@ -356,6 +336,7 @@ export default function BuyNowPage() {
                 Total: ₹{(product.price * quantity).toFixed(2)}
               </p>
 
+              {/* Payment options */}
               <div className="mb-8 flex gap-8 flex-wrap">
                 <label
                   className={`flex items-center cursor-pointer text-lg font-semibold ${
@@ -371,6 +352,7 @@ export default function BuyNowPage() {
                     checked={paymentMethod === "Cash on Delivery"}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="mr-2 cursor-pointer"
+                    aria-checked={paymentMethod === "Cash on Delivery"}
                   />
                   Cash on Delivery
                 </label>
@@ -389,22 +371,25 @@ export default function BuyNowPage() {
                     checked={paymentMethod === "Pay Online"}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="mr-2 cursor-pointer"
+                    aria-checked={paymentMethod === "Pay Online"}
                   />
                   Pay Online
                 </label>
               </div>
             </div>
 
+            {/* Confirm button */}
             <button
               onClick={handleConfirmPurchase}
-              disabled={!paymentMethod}
+              disabled={!paymentMethod || isLoading}
               className={`w-full py-3 rounded-md text-white font-bold text-xl transition ${
-                paymentMethod
+                paymentMethod && !isLoading
                   ? "bg-[#8B4513] hover:bg-[#5c2e00] shadow-lg"
                   : "bg-[#c8a97e] cursor-not-allowed"
               }`}
+              aria-disabled={!paymentMethod || isLoading}
             >
-              Confirm Purchase
+              {isLoading ? "Processing..." : "Confirm Purchase"}
             </button>
           </div>
         </div>
