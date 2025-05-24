@@ -14,6 +14,8 @@ import Register from './pages/register';
 import ProductDetails from './pages/productdetails';
 import BuyNowPage from './pages/buynowpage';
 import Orders from './pages/oders';
+import Success from './pages/success';
+import Failure from './pages/failed';
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -110,6 +112,14 @@ function App() {
         <Route
           path="/buynowpage"
           element={isAuthenticated ? <BuyNowPage /> : <Navigate to="/login" />}
+        />
+         <Route
+          path="/success"
+          element={isAuthenticated ? <Success /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/failure"
+          element={isAuthenticated ? <Failure /> : <Navigate to="/login" />}
         />
       </Routes>
     </>
