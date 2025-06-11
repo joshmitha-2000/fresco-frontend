@@ -7,7 +7,7 @@ export default function CreatePaymentIntent() {
   const [loading, setLoading] = useState(false);
 
   // Replace with your actual backend URL
-  const BACKEND_URL = 'http://localhost:3000/payment/create-intent';
+  const BACKEND_URL = 'https://frescobackend.onrender.com/create-intent';
 
   // Replace with how you get the auth token (e.g., from localStorage)
   const authToken = localStorage.getItem("token");// truncated, put full token here

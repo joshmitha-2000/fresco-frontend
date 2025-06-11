@@ -8,21 +8,24 @@ const Register = () => {
     password: '',
     confirmPassword: '',
   });
-  const [message, setMessage] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setSuccessMsg('');
+    setErrorMsg('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      setMessage('Passwords do not match!');
+      setErrorMsg('Passwords do not match!');
       return;
     }
-    console.log('Registering with email:', formData.email);
+
     try {
       const res = await fetch('https://frescobackend.onrender.com/register', {
         method: 'POST',
@@ -36,13 +39,16 @@ const Register = () => {
 
       const data = await res.json();
       if (res.ok) {
-        setMessage('Registration successful! Check your email for confirmation link.');
+        setSuccessMsg('Registration successful! Check your email for confirmation link.');
+        setErrorMsg('');
         setFormData({ name: '', email: '', password: '', confirmPassword: '' }); // reset form
       } else {
-        setMessage(data.message || 'Registration failed.');
+        setErrorMsg(data.message || 'Registration failed.');
+        setSuccessMsg('');
       }
     } catch (err) {
-      setMessage('Server error.');
+      setErrorMsg('Server error. Please try again later.');
+      setSuccessMsg('');
     }
   };
 
@@ -61,7 +67,8 @@ const Register = () => {
         <div className="w-full md:w-1/2 p-6 md:p-10 max-h-screen overflow-y-auto">
           <h2 className="text-3xl font-semibold text-[#5c3d1c] mb-6 text-center">Register</h2>
 
-          {message && <p className="text-center text-green-600 mb-4">{message}</p>}
+          {successMsg && <p className="text-center text-green-600 mb-4">{successMsg}</p>}
+          {errorMsg && <p className="text-center text-red-600 mb-4">{errorMsg}</p>}
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <input
